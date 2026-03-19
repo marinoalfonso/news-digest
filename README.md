@@ -2,6 +2,10 @@
 
 Pipeline Python automatizzata che aggrega notizie da feed RSS e NewsAPI, genera digest giornalieri con Claude API e produce un report HTML consultabile nel browser. Lo scheduling è gestito tramite launchd su macOS e l'esecuzione avviene in un container Docker.
 
+## Preview
+
+![News Digest](assets/preview.png)
+
 ## Come funziona
 
 1. **Fetch** — scarica fino a 8 articoli per categoria dalle ultime 24 ore tramite feed RSS e NewsAPI
