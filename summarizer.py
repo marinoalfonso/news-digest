@@ -8,7 +8,7 @@ CATEGORY_LABELS = {
     "economia":       "Economia & Finanza",
     "tech":           "Tech & AI",
     "geopolitica":    "Geopolitica",
-    "italia_europa":  "Italia & Europa",
+    "italia":  "Italia",
     "scienza_salute": "Scienza & Salute",
 }
 

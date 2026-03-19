@@ -2,7 +2,7 @@
 # Modifica questo file per aggiungere/rimuovere fonti e categorie.
 
 # --- Categorie attive ---
-CATEGORIES = ["economia", "tech", "geopolitica", "italia_europa", "scienza_salute"]
+CATEGORIES = ["economia", "tech", "geopolitica", "italia", "scienza_salute"]
 
 # --- Feed RSS per categoria ---
 RSS_FEEDS = {
@@ -21,9 +21,9 @@ RSS_FEEDS = {
         "https://rss.nytimes.com/services/xml/rss/nyt/World.xml",
         "https://feeds.bbci.co.uk/news/world/rss.xml",
     ],
-    "italia_europa": [
+    "italia": [
         "https://www.ansa.it/sito/ansait_rss.xml",
-        "https://feeds.bbci.co.uk/news/world/europe/rss.xml",
+        "https://www.repubblica.it/rss/homepage/rss2.0.xml",
         "https://www.corriere.it/rss/homepage.xml",
     ],
     "scienza_salute": [
@@ -40,7 +40,7 @@ NEWSAPI_QUERIES = {
     "economia":      "economy OR inflation OR markets OR stocks",
     "tech":          "artificial intelligence OR machine learning OR tech",
     "geopolitica":   "geopolitics OR war OR diplomacy OR UN",
-    "italia_europa": "Italy OR European Union OR EU policy",
+    "italia": "Italy OR Italia OR governo italiano OR politica italiana",
     "scienza_salute": "health OR medicine OR scientific research OR WHO"
 }
 NEWSAPI_LANGUAGE = "en"       # "it" per italiano, "en" per inglese
