@@ -8,12 +8,12 @@
   <key>Label</key>
   <string>com.alfonso.newsdigest</string>
 
-  <!-- Comando da eseguire: python3 + path assoluto di main.py -->
   <!-- MODIFICA i path qui sotto con i tuoi path reali -->
   <key>ProgramArguments</key>
   <array>
   <string>/usr/local/bin/docker</string>
   <string>run</string>
+  <string>--rm</string>
   <string>--env-file</string>
   <string>/Users/alfonsomarino/Desktop/news-digest/.env</string>
   <string>-v</string>

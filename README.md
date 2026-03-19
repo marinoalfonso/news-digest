@@ -38,7 +38,7 @@ cp .env.example .env
 docker build -t news-digest .
 
 # 4. Esegui
-docker run --env-file .env -v $(pwd)/outputs:/app/outputs news-digest
+docker run --rm --env-file .env -v $(pwd)/outputs:/app/outputs news-digest
 ```
 
 Il report HTML viene salvato in `outputs/` e può essere aperto direttamente nel browser.
