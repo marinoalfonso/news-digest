@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN"
+  "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+
+  <!-- Identificatore univoco del job -->
+  <key>Label</key>
+  <string>com.alfonso.newsdigest</string>
+
+  <!-- Comando da eseguire: python3 + path assoluto di main.py -->
+  <!-- MODIFICA i path qui sotto con i tuoi path reali -->
+  <key>ProgramArguments</key>
+  <array>
+    <string>/usr/bin/python3</string>
+    <string>/Users/alfonsomarino/Desktop/news-digest/main.py</string>
+  </array>
+
+  <!-- Orario: ogni giorno alle 09:00 -->
+  <key>StartCalendarInterval</key>
+  <dict>
+    <key>Hour</key>
+    <integer>9</integer>
+    <key>Minute</key>
+    <integer>0</integer>
+  </dict>
+
+  <!-- Variabili d'ambiente (opzionale se usi già .env con dotenv) -->
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>PATH</key>
+    <string>/usr/local/bin:/usr/bin:/bin</string>
+  </dict>
+
+  <!-- Directory di lavoro: deve essere la cartella del progetto -->
+  <key>WorkingDirectory</key>
+  <string>/Users/alfonsomarino/Desktop/news-digest</string>
+
+  <!-- Log stdout e stderr per debug -->
+  <key>StandardOutPath</key>
+  <string>/Users/alfonsomarino/Desktop/news-digest/logs/digest.log</string>
+  <key>StandardErrorPath</key>
+  <string>/Users/alfonsomarino/Desktop/news-digest/logs/digest_error.log</string>
+
+  <!-- Riprova se il Mac era spento alle 9 -->
+  <key>RunAtLoad</key>
+  <false/>
+
+</dict>
+</plist>
