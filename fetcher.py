@@ -6,7 +6,7 @@ import feedparser
 from datetime import datetime, timezone, timedelta
 from config import (
     RSS_FEEDS, NEWSAPI_QUERIES, NEWSAPI_LANGUAGE,
-    NEWSAPI_PAGE_SIZE, ARTICLES_PER_RSS_FEED, ARTICLES_FROM_NEWSAPI, HOURS_LOOKBACK
+    ARTICLES_PER_RSS_FEED, ARTICLES_FROM_NEWSAPI, HOURS_LOOKBACK
 )
 
 
