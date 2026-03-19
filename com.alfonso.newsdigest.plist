@@ -12,9 +12,14 @@
   <!-- MODIFICA i path qui sotto con i tuoi path reali -->
   <key>ProgramArguments</key>
   <array>
-    <string>/usr/bin/python3</string>
-    <string>/Users/alfonsomarino/Desktop/news-digest/main.py</string>
-  </array>
+  <string>/usr/local/bin/docker</string>
+  <string>run</string>
+  <string>--env-file</string>
+  <string>/Users/alfonsomarino/Desktop/news-digest/.env</string>
+  <string>-v</string>
+  <string>/Users/alfonsomarino/Desktop/news-digest/outputs:/app/outputs</string>
+  <string>news-digest</string>
+</array>
 
   <!-- Orario: ogni giorno alle 09:00 -->
   <key>StartCalendarInterval</key>

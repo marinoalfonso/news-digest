@@ -27,8 +27,6 @@ def main():
     path = save_report(html)
 
     print(f"\n✓ Report salvato in: {path}")
-    print("  Apro nel browser...\n")
-    #webbrowser.open(f"file://{os.path.abspath(path)}")
 
 if __name__ == "__main__":
     main()

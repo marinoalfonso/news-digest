@@ -41,7 +41,7 @@ NEWSAPI_QUERIES = {
     "tech":          "artificial intelligence OR machine learning OR tech",
     "geopolitica":   "geopolitics OR war OR diplomacy OR UN",
     "italia_europa": "Italy OR European Union OR EU policy",
-    "scienza_salute": "health OR medicine OR scientific research OR WHO",,
+    "scienza_salute": "health OR medicine OR scientific research OR WHO",
 }
 NEWSAPI_LANGUAGE = "en"       # "it" per italiano, "en" per inglese
 NEWSAPI_PAGE_SIZE = 5         # articoli per categoria da NewsAPI
