@@ -14,7 +14,7 @@ Pipeline Python automatizzata che aggrega notizie da feed RSS e NewsAPI, genera 
 - 💹 Economia & Finanza
 - 🤖 Tech & AI
 - 🌍 Geopolitica
-- 🇮🇹 Italia & Europa
+- 🇮🇹 Italia
 - 🔬 Scienza & Salute
 
 ## Requisiti
@@ -66,11 +66,12 @@ cat logs/digest.log
 Modifica `config.py` per personalizzare il comportamento:
 
 ```python
-CATEGORIES          # categorie attive
-RSS_FEEDS           # feed RSS per categoria
-NEWSAPI_QUERIES     # query per NewsAPI per categoria
-HOURS_LOOKBACK      # quante ore indietro guardare (default: 24)
-MAX_ARTICLES_PER_CATEGORY  # articoli massimi per categoria (default: 8)
+CATEGORIES                  # categorie attive
+RSS_FEEDS                   # ogni feed contribuisce con un numero fisso di articoli
+NEWSAPI_QUERIES             # query per NewsAPI per categoria
+HOURS_LOOKBACK              # quante ore indietro guardare (default: 24)
+ARTICLES_PER_RSS_FEED       # articoli per ogni singolo feed RSS (default: 5)
+ARTICLES_FROM_NEWSAPI       # articoli da NewsAPI per categoria (default: 5)
 ```
 
 Dopo ogni modifica al codice, ricostruisci l'immagine Docker:
