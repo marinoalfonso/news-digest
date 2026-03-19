@@ -42,7 +42,7 @@ def build_dots(score: int) -> str:
     return dots
 
 
-def build_card(notizia: dict, article: dict | None = None) -> str:
+def build_card(notizia: dict) -> str:
     """Costruisce una card HTML da un oggetto notizia del JSON."""
     titolo = notizia.get("titolo", "")
     corpo = notizia.get("corpo", "")
@@ -51,9 +51,10 @@ def build_card(notizia: dict, article: dict | None = None) -> str:
     dots = build_dots(score)
     score_label = {3: "Alta rilevanza", 2: "Media rilevanza", 1: "Bassa rilevanza"}.get(score, "")
 
-    # Fonte e link dall'articolo originale abbinato
-    source = article.get("source", "") if article else ""
-    url = article.get("url", "#") if article else "#"
+    # Articolo originale già risolto da summarizer
+    article = notizia.get("_article", {})
+    source = article.get("source", "")
+    url = article.get("url", "#")
 
     footer_html = ""
     if source or url != "#":
@@ -90,11 +91,8 @@ def generate_html(
         notizie = digest.get("notizie", [])
         watch = digest.get("watch", "")
 
-        # Card delle notizie — abbina ogni notizia all'articolo per indice
-        cards_html = ""
-        for j, n in enumerate(notizie):
-            article = articles[j] if j < len(articles) else None
-            cards_html += build_card(n, article)
+        # Card delle notizie — _article già risolto in summarizer
+        cards_html = "".join(build_card(n) for n in notizie)
 
         # Fonti espandibili
         sources_html = build_sources_html(articles)

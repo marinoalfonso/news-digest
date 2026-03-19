@@ -2,7 +2,7 @@
 # Modifica questo file per aggiungere/rimuovere fonti e categorie.
 
 # --- Categorie attive ---
-CATEGORIES = ["economia", "tech", "geopolitica", "italia_europa", "scienza_salute"]
+CATEGORIES = ["economia", "tech", "geopolitica", "italia_europa", "calcio"]
 
 # --- Feed RSS per categoria ---
 RSS_FEEDS = {
@@ -47,6 +47,6 @@ NEWSAPI_LANGUAGE = "en"       # "it" per italiano, "en" per inglese
 NEWSAPI_PAGE_SIZE = 5         # articoli per categoria da NewsAPI
 
 # --- Comportamento generale ---
-MAX_ARTICLES_PER_CATEGORY = 8   # articoli totali (RSS + NewsAPI) per categoria
+MAX_ARTICLES_PER_CATEGORY = 20   # articoli totali nel pool per categoria
 HOURS_LOOKBACK = 24             # quante ore indietro guardare
 OUTPUT_DIR = "outputs"          # cartella dove salvare i digest HTML
