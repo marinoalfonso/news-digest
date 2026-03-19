@@ -42,7 +42,7 @@ def build_dots(score: int) -> str:
     return dots
 
 
-def build_card(notizia: dict) -> str:
+def build_card(notizia: dict, article: dict | None = None) -> str:
     """Costruisce una card HTML da un oggetto notizia del JSON."""
     titolo = notizia.get("titolo", "")
     corpo = notizia.get("corpo", "")
@@ -50,6 +50,16 @@ def build_card(notizia: dict) -> str:
     score = int(notizia.get("score", 2))
     dots = build_dots(score)
     score_label = {3: "Alta rilevanza", 2: "Media rilevanza", 1: "Bassa rilevanza"}.get(score, "")
+
+    # Fonte e link dall'articolo originale abbinato
+    source = article.get("source", "") if article else ""
+    url = article.get("url", "#") if article else "#"
+
+    footer_html = ""
+    if source or url != "#":
+        leggi = f'<a href="{url}" target="_blank" rel="noopener" class="card-link">Leggi →</a>' if url != "#" else ""
+        source_html = f'<span class="card-source">{source}</span>' if source else ""
+        footer_html = f'<div class="card-footer">{source_html}{leggi}</div>'
 
     return f"""
       <div class="card">
@@ -59,6 +69,7 @@ def build_card(notizia: dict) -> str:
         </div>
         <p class="card-body">{corpo}</p>
         <span class="card-relevance-label">{rilevanza}</span>
+        {footer_html}
       </div>"""
 
 
@@ -79,8 +90,11 @@ def generate_html(
         notizie = digest.get("notizie", [])
         watch = digest.get("watch", "")
 
-        # Card delle notizie
-        cards_html = "".join(build_card(n) for n in notizie)
+        # Card delle notizie — abbina ogni notizia all'articolo per indice
+        cards_html = ""
+        for j, n in enumerate(notizie):
+            article = articles[j] if j < len(articles) else None
+            cards_html += build_card(n, article)
 
         # Fonti espandibili
         sources_html = build_sources_html(articles)
@@ -289,6 +303,22 @@ def generate_html(
       background: var(--tag-bg);
       padding: 3px 10px; border-radius: 4px;
     }}
+    .card-footer {{
+      display: flex; align-items: center;
+      justify-content: space-between;
+      margin-top: 12px;
+    }}
+    .card-source {{
+      font-size: 0.72rem; font-weight: 500;
+      letter-spacing: .06em; text-transform: uppercase;
+      color: var(--text3);
+    }}
+    .card-link {{
+      font-size: 0.75rem; font-weight: 500;
+      color: var(--tag-text); text-decoration: none;
+      opacity: 0; transition: opacity .2s var(--ease);
+    }}
+    .card:hover .card-link {{ opacity: 1; }}
     .watch {{
       background: var(--tag-bg);
       border-left: 2px solid var(--accent);
