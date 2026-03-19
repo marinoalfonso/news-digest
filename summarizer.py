@@ -1,5 +1,7 @@
 # summarizer.py
 import os
+import re
+import json
 import anthropic
 
 CATEGORY_LABELS = {
@@ -7,14 +9,17 @@ CATEGORY_LABELS = {
     "tech":          "Tech & AI",
     "geopolitica":   "Geopolitica",
     "italia_europa": "Italia & Europa",
-    "scienza_salute": "Scienza & Salute",
+    "calcio":        "Calcio",
 }
 
 SYSTEM_PROMPT = """Sei un editor senior di un briefing giornaliero di qualità.
 Ricevi una lista di articoli di notizie e devi produrre un digest approfondito e utile.
 Rispondi SEMPRE in italiano, anche se gli articoli sono in inglese.
 Sii diretto e analitico. Evita frasi generiche come "è importante sottolineare".
-Quando scrivi le sintesi, ragiona sulle cause, le conseguenze e i collegamenti tra le notizie — non limitarti a riassumere i fatti."""
+Quando scrivi le sintesi, ragiona su cause, conseguenze e collegamenti tra le notizie - non limitarti a riassumere i fatti.
+
+IMPORTANTE: Rispondi ESCLUSIVAMENTE con un oggetto JSON valido, senza testo prima o dopo,
+senza backtick, senza markdown. Solo JSON puro."""
 
 def build_user_prompt(category: str, articles: list[dict]) -> str:
     label = CATEGORY_LABELS.get(category, category)
@@ -27,30 +32,34 @@ def build_user_prompt(category: str, articles: list[dict]) -> str:
         lines.append("")
 
     lines.append("""
-Produci un briefing strutturato così:
+Restituisci SOLO questo JSON (nessun testo aggiuntivo):
 
-**Sintesi generale**
-Un paragrafo di 5-7 frasi che inquadra il momento attuale per questa categoria di notizie.
-Non elencare i fatti uno per uno: costruisci una narrativa che colleghi le notizie tra loro,
-evidenzi i temi ricorrenti e offra una lettura critica di quello che sta succedendo.
+{
+  "sintesi": "Un paragrafo di 5-7 frasi che inquadra il momento attuale per questa categoria di notizie. Costruisci una narrativa che colleghi le notizie, evidenzi i temi ricorrenti e offra una lettura critica.",
+  "notizie": [
+    {
+      "titolo": "Titolo breve e chiaro della notizia",
+      "corpo": "3-4 frasi di spiegazione: cosa è successo, perché è successo, quali sono le conseguenze immediate.",
+      "rilevanza": "Una frase sull'impatto più ampio — economico, politico, sociale.",
+      "score": 3
+    }
+  ],
+  "watch": "2-3 frasi su un trend da monitorare nelle prossime ore/giorni. Indica cosa osservare e quale scenario potrebbe aprirsi."
+}
 
-**Notizie principali**
-Per ciascuna delle 4-5 notizie più rilevanti:
-- **Titolo breve e chiaro**
-- 3-4 frasi di spiegazione: cosa è successo, perché è successo, quali sono le conseguenze immediate
-- *Perché è rilevante:* una frase che spiega l'impatto più ampio — economico, politico, sociale
-
-**Da tenere d'occhio**
-2-3 frasi su un trend o sviluppo da monitorare nelle prossime ore/giorni.
-Indica cosa osservare e quale scenario potrebbe aprirsi.
+Regole:
+- "notizie": includi le 3-5 notizie più importanti
+- "score": da 1 (bassa rilevanza) a 3 (alta rilevanza)
+- Tutti i valori stringa in italiano
+- JSON valido, nessun carattere fuori dal JSON
 """)
     return "\n".join(lines)
 
 
-def summarize_category(category: str, articles: list[dict], client: anthropic.Anthropic) -> str:
-    """Chiama Claude e restituisce il briefing testuale per una categoria."""
+def summarize_category(category: str, articles: list[dict], client: anthropic.Anthropic) -> dict:
+    """Chiama Claude e restituisce il digest come dizionario strutturato."""
     if not articles:
-        return "_Nessun articolo trovato per questa categoria._"
+        return {"sintesi": "Nessun articolo trovato per questa categoria.", "notizie": [], "watch": ""}
 
     prompt = build_user_prompt(category, articles)
     try:
@@ -60,13 +69,18 @@ def summarize_category(category: str, articles: list[dict], client: anthropic.An
             system=SYSTEM_PROMPT,
             messages=[{"role": "user", "content": prompt}],
         )
-        return message.content[0].text
+        raw = message.content[0].text.strip()
+        # Rimuovi eventuali backtick residui
+        raw = re.sub(r"^```json\s*", "", raw)
+        raw = re.sub(r"\s*```$", "", raw)
+        return json.loads(raw)
     except Exception as e:
-        return f"_Errore nella generazione del digest: {e}_"
+        print(f"[!] Errore parsing JSON per '{category}': {e}")
+        return {"sintesi": f"Errore nella generazione del digest: {e}", "notizie": [], "watch": ""}
 
 
-def summarize_all(articles_by_category: dict[str, list[dict]]) -> dict[str, str]:
-    """Genera i digest per tutte le categorie."""
+def summarize_all(articles_by_category: dict[str, list[dict]]) -> dict[str, dict]:
+    """Genera i digest strutturati per tutte le categorie."""
     api_key = os.getenv("ANTHROPIC_API_KEY", "")
     if not api_key:
         raise EnvironmentError("ANTHROPIC_API_KEY non trovata in .env")
