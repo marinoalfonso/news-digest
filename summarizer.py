@@ -128,11 +128,11 @@ def build_synthesis_prompt(category: str, articles: list[dict]) -> str:
 Restituisci SOLO questo JSON:
 
 {
-  "sintesi": "Un paragrafo di 5-7 frasi che inquadra il momento attuale. Costruisci una narrativa che colleghi i temi, evidenzi i fili comuni e offra una lettura critica di quello che sta succedendo.",
+  "sintesi": "Un paragrafo di 5-6 frasi che inquadra il momento attuale. Costruisci una narrativa che colleghi i temi, evidenzi i fili comuni e offra una lettura critica di quello che sta succedendo.",
   "notizie": [
     {
       "titolo": "Titolo breve e chiaro della notizia",
-      "corpo": "3-4 frasi: cosa è successo, perché è successo, quali sono le conseguenze immediate.",
+      "corpo": "2-3 frasi: cosa è successo, perché è successo, quali sono le conseguenze immediate.",
       "rilevanza": "Una frase sull'impatto più ampio — economico, politico, sociale.",
       "score": 3,
       "source_index": 1
@@ -142,7 +142,7 @@ Restituisci SOLO questo JSON:
 }
 
 Regole:
-- "notizie": includi le 3-5 notizie più rilevanti tra quelle disponibili
+- "notizie": includi le 3-4 notizie più rilevanti tra quelle disponibili
 - "score": da 1 (bassa rilevanza) a 3 (alta rilevanza) — valuta impatto e ampiezza
 - "source_index": numero dell'articolo in questa lista (da 1 a N) da cui proviene la notizia
 - Tutti i valori stringa in italiano

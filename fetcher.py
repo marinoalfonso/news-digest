@@ -6,7 +6,7 @@ import feedparser
 from datetime import datetime, timezone, timedelta
 from config import (
     RSS_FEEDS, NEWSAPI_QUERIES, NEWSAPI_LANGUAGE,
-    NEWSAPI_PAGE_SIZE, MAX_ARTICLES_PER_CATEGORY, HOURS_LOOKBACK
+    NEWSAPI_PAGE_SIZE, ARTICLES_PER_RSS_FEED, ARTICLES_FROM_NEWSAPI, HOURS_LOOKBACK
 )
 
 
@@ -34,11 +34,14 @@ def is_recent(published_str: str | None) -> bool:
 
 
 def fetch_rss(category: str) -> list[dict]:
-    """Scarica e normalizza articoli dai feed RSS di una categoria."""
+    """Scarica esattamente ARTICLES_PER_RSS_FEED articoli per ogni feed RSS.
+    Il pool risultante è bilanciato per costruzione — ogni fonte contribuisce ugualmente.
+    """
     feeds = RSS_FEEDS.get(category, [])
     articles = []
 
     for url in feeds:
+        feed_articles = []
         try:
             feed = feedparser.parse(url)
             for entry in feed.entries:
@@ -48,13 +51,12 @@ def fetch_rss(category: str) -> list[dict]:
                 summary = clean_html(
                     entry.get("summary", "") or entry.get("description", "")
                 )
-                # Tronca summary a 500 caratteri per non sprecare token
                 summary = summary[:500] if summary else ""
                 link = entry.get("link", "")
                 source = feed.feed.get("title", url)
 
                 if title:
-                    articles.append({
+                    feed_articles.append({
                         "title": title,
                         "summary": summary,
                         "url": link,
@@ -62,8 +64,15 @@ def fetch_rss(category: str) -> list[dict]:
                         "category": category,
                         "origin": "rss",
                     })
+
+                if len(feed_articles) >= ARTICLES_PER_RSS_FEED:
+                    break
+
         except Exception as e:
             print(f"[RSS] Errore su {url}: {e}")
+
+        print(f"    {len(feed_articles)}/{ARTICLES_PER_RSS_FEED} articoli da {url[:50]}")
+        articles.extend(feed_articles)
 
     return articles
 
@@ -81,7 +90,7 @@ def fetch_newsapi(category: str, api_key: str) -> list[dict]:
         "q": query,
         "language": NEWSAPI_LANGUAGE,
         "sortBy": "publishedAt",
-        "pageSize": NEWSAPI_PAGE_SIZE,
+        "pageSize": ARTICLES_FROM_NEWSAPI,
         "from": from_date,
         "apiKey": api_key,
     }
@@ -111,18 +120,18 @@ def fetch_newsapi(category: str, api_key: str) -> list[dict]:
 
 
 def fetch_all(categories: list[str]) -> dict[str, list[dict]]:
-    """Punto di ingresso principale: scarica tutto e raggruppa per categoria."""
+    """Punto di ingresso principale: scarica articoli bilanciati per fonte."""
     newsapi_key = os.getenv("NEWSAPI_KEY", "")
     if not newsapi_key:
         print("[!] NEWSAPI_KEY non trovata in .env — salto NewsAPI.")
 
     result = {}
     for cat in categories:
-        print(f"[→] Fetching: {cat}")
+        print(f"\n[→] Fetching: {cat}")
         rss_articles = fetch_rss(cat)
         api_articles = fetch_newsapi(cat, newsapi_key)
 
-        # Unisci, deduplicando per titolo (case-insensitive)
+        # Deduplicazione per titolo (case-insensitive)
         seen_titles = set()
         combined = []
         for art in rss_articles + api_articles:
@@ -131,8 +140,7 @@ def fetch_all(categories: list[str]) -> dict[str, list[dict]]:
                 seen_titles.add(key)
                 combined.append(art)
 
-        # Limita al massimo configurato
-        result[cat] = combined[:MAX_ARTICLES_PER_CATEGORY]
-        print(f"    {len(result[cat])} articoli trovati")
+        result[cat] = combined
+        print(f"    → {len(result[cat])} articoli nel pool ({len(rss_articles)} RSS + {len(api_articles)} NewsAPI)")
 
     return result
