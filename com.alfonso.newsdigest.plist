@@ -49,7 +49,7 @@
 
   <!-- Riprova se il Mac era spento alle 9 -->
   <key>RunAtLoad</key>
-  <false/>
+  <true/>
 
 </dict>
 </plist>
