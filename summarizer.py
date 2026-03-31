@@ -3,12 +3,15 @@ import os
 import re
 import json
 import anthropic
+from logger import get_logger
+
+log = get_logger("summarizer")
 
 CATEGORY_LABELS = {
     "economia":       "Economia & Finanza",
     "tech":           "Tech & AI",
     "geopolitica":    "Geopolitica",
-    "italia":  "Italia",
+    "italia_europa":  "Italia & Europa",
     "scienza_salute": "Scienza & Salute",
 }
 
@@ -92,13 +95,13 @@ def select_articles(category: str, articles: list[dict], client: anthropic.Anthr
                     selected.append(articles[idx])
 
             if selected:
-                print(f"    Temi individuati: {[t['tema'] for t in data['temi']]}")
+                log.info(f"Temi individuati per '{category}': {[t['tema'] for t in data['temi']]}")
                 return selected
 
         except Exception as e:
-            print(f"[!] Selezione tentativo {attempt + 1}/2 per '{category}': {e}")
+            log.error(f"Selezione tentativo {attempt + 1}/2 per '{category}': {e}")
 
-    print(f"[!] Selezione fallita per '{category}', uso i primi 8.")
+    log.warning(f"Selezione fallita per '{category}', uso i primi 8.")
     return articles[:8]
 
 
@@ -128,11 +131,11 @@ def build_synthesis_prompt(category: str, articles: list[dict]) -> str:
 Restituisci SOLO questo JSON:
 
 {
-  "sintesi": "Un paragrafo di 5-6 frasi che inquadra il momento attuale. Costruisci una narrativa che colleghi i temi, evidenzi i fili comuni e offra una lettura critica di quello che sta succedendo.",
+  "sintesi": "Un paragrafo di 5-7 frasi che inquadra il momento attuale. Costruisci una narrativa che colleghi i temi, evidenzi i fili comuni e offra una lettura critica di quello che sta succedendo.",
   "notizie": [
     {
       "titolo": "Titolo breve e chiaro della notizia",
-      "corpo": "2-3 frasi: cosa è successo, perché è successo, quali sono le conseguenze immediate.",
+      "corpo": "3-4 frasi: cosa è successo, perché è successo, quali sono le conseguenze immediate.",
       "rilevanza": "Una frase sull'impatto più ampio — economico, politico, sociale.",
       "score": 3,
       "source_index": 1
@@ -142,7 +145,7 @@ Restituisci SOLO questo JSON:
 }
 
 Regole:
-- "notizie": includi le 3-4 notizie più rilevanti tra quelle disponibili
+- "notizie": includi le 3-5 notizie più rilevanti tra quelle disponibili
 - "score": da 1 (bassa rilevanza) a 3 (alta rilevanza) — valuta impatto e ampiezza
 - "source_index": numero dell'articolo in questa lista (da 1 a N) da cui proviene la notizia
 - Tutti i valori stringa in italiano
@@ -182,7 +185,7 @@ def synthesize_category(category: str, articles: list[dict], client: anthropic.A
             return data
 
         except Exception as e:
-            print(f"[!] Sintesi tentativo {attempt + 1}/2 per '{category}': {e}")
+            log.error(f"Sintesi tentativo {attempt + 1}/2 per '{category}': {e}")
 
     return {"sintesi": "Digest non disponibile.", "notizie": [], "watch": "", "selected_articles": articles}
 
@@ -199,14 +202,14 @@ def summarize_all(articles_by_category: dict[str, list[dict]]) -> dict[str, dict
     summaries = {}
 
     for category, articles in articles_by_category.items():
-        print(f"\n[→] Categoria: {category} ({len(articles)} articoli nel pool)")
+        log.info(f"Categoria: {category} — {len(articles)} articoli nel pool")
 
-        print(f"    [1/2] Selezione tematica...")
+        log.info(f"[{category}] Passaggio 1/2: selezione tematica")
         selected = select_articles(category, articles, client)
-        print(f"    → {len(selected)} articoli selezionati")
+        log.info(f"[{category}] {len(selected)} articoli selezionati")
 
-        print(f"    [2/2] Sintesi e card...")
+        log.info(f"[{category}] Passaggio 2/2: sintesi e card")
         summaries[category] = synthesize_category(category, selected, client)
-        print(f"    → Digest generato")
+        log.info(f"[{category}] Digest generato")
 
     return summaries

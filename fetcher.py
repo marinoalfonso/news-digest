@@ -8,6 +8,9 @@ from config import (
     RSS_FEEDS, NEWSAPI_QUERIES, NEWSAPI_LANGUAGE,
     ARTICLES_PER_RSS_FEED, ARTICLES_FROM_NEWSAPI, HOURS_LOOKBACK
 )
+from logger import get_logger
+
+log = get_logger("fetcher")
 
 
 def clean_html(text: str) -> str:
@@ -69,9 +72,9 @@ def fetch_rss(category: str) -> list[dict]:
                     break
 
         except Exception as e:
-            print(f"[RSS] Errore su {url}: {e}")
+            log.error(f"Errore RSS su {url}: {e}")
 
-        print(f"    {len(feed_articles)}/{ARTICLES_PER_RSS_FEED} articoli da {url[:50]}")
+        log.info(f"{len(feed_articles)}/{ARTICLES_PER_RSS_FEED} articoli da {url[:60]}")
         articles.extend(feed_articles)
 
     return articles
@@ -115,7 +118,7 @@ def fetch_newsapi(category: str, api_key: str) -> list[dict]:
                 })
         return articles
     except Exception as e:
-        print(f"[NewsAPI] Errore per '{category}': {e}")
+        log.error(f"NewsAPI errore per '{category}': {e}")
         return []
 
 
@@ -123,15 +126,14 @@ def fetch_all(categories: list[str]) -> dict[str, list[dict]]:
     """Punto di ingresso principale: scarica articoli bilanciati per fonte."""
     newsapi_key = os.getenv("NEWSAPI_KEY", "")
     if not newsapi_key:
-        print("[!] NEWSAPI_KEY non trovata in .env — salto NewsAPI.")
+        log.warning("NEWSAPI_KEY non trovata in .env — salto NewsAPI.")
 
     result = {}
     for cat in categories:
-        print(f"\n[→] Fetching: {cat}")
+        log.info(f"Fetching categoria: {cat}")
         rss_articles = fetch_rss(cat)
         api_articles = fetch_newsapi(cat, newsapi_key)
 
-        # Deduplicazione per titolo (case-insensitive)
         seen_titles = set()
         combined = []
         for art in rss_articles + api_articles:
@@ -141,6 +143,6 @@ def fetch_all(categories: list[str]) -> dict[str, list[dict]]:
                 combined.append(art)
 
         result[cat] = combined
-        print(f"    → {len(result[cat])} articoli nel pool ({len(rss_articles)} RSS + {len(api_articles)} NewsAPI)")
+        log.info(f"Pool {cat}: {len(result[cat])} articoli ({len(rss_articles)} RSS + {len(api_articles)} NewsAPI)")
 
     return result
