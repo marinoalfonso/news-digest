@@ -11,7 +11,7 @@
   <key>ProgramArguments</key>
 <array>
   <string>/bin/bash</string>
-  <string>/Users/alfonsomarino/Desktop/news-digest/wait-and-run.sh</string>
+  <string>/Users/alfonsomarino/projects/news-digest/smart-run.sh</string>
 </array>
 
   <!-- Orario: ogni giorno alle 09:00 -->
@@ -32,13 +32,13 @@
 
   <!-- Directory di lavoro: deve essere la cartella del progetto -->
   <key>WorkingDirectory</key>
-  <string>/Users/alfonsomarino/Desktop/news-digest</string>
+  <string>/Users/alfonsomarino/projects/news-digest</string>
 
   <!-- Log stdout e stderr per debug -->
   <key>StandardOutPath</key>
-  <string>/Users/alfonsomarino/Desktop/news-digest/logs/digest.log</string>
+  <string>/Users/alfonsomarino/projects/news-digest/logs/digest.log</string>
   <key>StandardErrorPath</key>
-  <string>/Users/alfonsomarino/Desktop/news-digest/logs/digest_error.log</string>
+  <string>/Users/alfonsomarino/projects/news-digest/logs/digest_error.log</string>
 
   <!-- Riprova se il Mac era spento alle 9 -->
   <key>RunAtLoad</key>
